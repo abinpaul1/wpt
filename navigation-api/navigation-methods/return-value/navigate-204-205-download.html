@@ -1,0 +1,43 @@
+<!doctype html>
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<script src="resources/helpers.js"></script>
+
+<iframe id="i" src="/common/blank.html"></iframe>
+<script>
+promise_test(async t => {
+  const result = i.contentWindow.navigation.navigate("/common/blank.html?pipe=status(204)");
+
+  assertNeverSettles(t, result, i.contentWindow);
+  i.contentWindow.navigation.onnavigate = t.unreached_func("onnavigate should not be called");
+  i.contentWindow.navigation.onnavigatesuccess = t.unreached_func("onnavigatesuccess should not be called");
+  i.contentWindow.navigation.onnavigateerror = t.unreached_func("onnavigateerror should not be called");
+
+  await new Promise(resolve => t.step_timeout(resolve, 10));
+  assert_equals(i.contentWindow.location.search, "");
+}, "navigate() promises to 204s never settle");
+
+promise_test(async t => {
+  const result = i.contentWindow.navigation.navigate("/common/blank.html?pipe=status(205)");
+
+  assertNeverSettles(t, result, i.contentWindow);
+  i.contentWindow.navigation.onnavigate = t.unreached_func("onnavigate should not be called");
+  i.contentWindow.navigation.onnavigatesuccess = t.unreached_func("onnavigatesuccess should not be called");
+  i.contentWindow.navigation.onnavigateerror = t.unreached_func("onnavigateerror should not be called");
+
+  await new Promise(resolve => t.step_timeout(resolve, 10));
+  assert_equals(i.contentWindow.location.search, "");
+}, "navigate() promises to 205s never settle");
+
+promise_test(async t => {
+  const result = i.contentWindow.navigation.navigate("/common/blank.html?pipe=header(Content-Disposition,attachment)");
+
+  assertNeverSettles(t, result, i.contentWindow);
+  i.contentWindow.navigation.onnavigate = t.unreached_func("onnavigate should not be called");
+  i.contentWindow.navigation.onnavigatesuccess = t.unreached_func("onnavigatesuccess should not be called");
+  i.contentWindow.navigation.onnavigateerror = t.unreached_func("onnavigateerror should not be called");
+
+  await new Promise(resolve => t.step_timeout(resolve, 10));
+  assert_equals(i.contentWindow.location.search, "");
+}, "navigate() promises to Content-Disposition: attachment responses never settle");
+</script>
