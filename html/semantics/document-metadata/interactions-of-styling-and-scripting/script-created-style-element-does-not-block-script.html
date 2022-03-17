@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<title>Script-created style element is not script-blocking</title>
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<script>
+const start = performance.now();
+const style = document.createElement('style');
+const sheet = document.createTextNode('@import url(stylesheet.py?delay=1);');
+style.appendChild(sheet);
+document.head.appendChild(style);
+</script>
+<script>
+// This script should not be blocked by the pending style element.
+// Error margin to make the test more robust.
+const epsilon = 50;
+test(() => {
+  const delay = performance.now() - start;
+  assert_less_than(delay, 1000 - epsilon);
+});
+</script>
