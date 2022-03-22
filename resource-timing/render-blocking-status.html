@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+
+<meta charset="utf-8" />
+<title>This test validates the render blocking status of resources.</title>
+<link rel="help" href="https://www.w3.org/TR/resource-timing-2/#sec-performanceresourcetiming"/>
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+
+
+<link rel=stylesheet href='resources/empty_style.css?stylesheet-head'>
+<link rel=stylesheet href='resources/empty_style.css?stylesheet-head-media-print' media=print>
+<script>
+    document.write("<link rel=stylesheet href='resources/empty_style.css?stylesheet-dynamic-head'>");
+</script>
+
+<script src="resources/empty_script.js?script-head"></script>
+
+<body>
+
+<link rel=stylesheet href='resources/empty_style.css?stylesheet-body-media-print' media=print>
+<script src="resources/empty_script.js?script-body"></script>
+
+<script>
+
+const wait_for_onload = () => {
+  return new Promise(resolve => {
+    window.addEventListener("load", resolve);
+})};
+
+promise_test(
+  async () => {
+
+    const expectedRenderBlockingStatus = {
+        'stylesheet-head': 'blocking',
+        'stylesheet-head-media-print' : 'non-blocking',
+        'stylesheet-head-dynamic' : 'blocking',
+        'stylesheet-body-media-print' : 'non-blocking',
+        'script-head': 'blocking',
+        'script-body': 'in_body_parser_blocking',
+    };
+
+    await wait_for_onload();
+
+    const entry_list = performance.getEntriesByType("resource");
+    for (entry of entry_list) {
+        if (entry.name.includes("empty_script.js") || entry.name.includes("empty_style.css")) {
+            key = entry.name.split("?").pop();
+            expectedStatus = expectedRenderBlockingStatus[key];
+            assert_equals(entry.render_blocking_status, expectedStatus,
+                `render blocking status for ${entry.name} should be ${expectedStatus}`);
+        }
+    }
+}, "Validate render blocking status of resources in PerformanceResourceTiming");
+
+</script>
