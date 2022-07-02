@@ -1,34 +1,54 @@
 <!DOCTYPE html>
-
+<head>
 <meta charset="utf-8" />
 <title>This test validates the render blocking status of resources.</title>
 <link rel="help" href="https://www.w3.org/TR/resource-timing-2/#sec-performanceresourcetiming"/>
 <script src="/resources/testharness.js"></script>
 <script src="/resources/testharnessreport.js"></script>
 
+<!-- Start of test cases -->
 <script src="resources/empty_script.js?script-head"></script>
 <script type="module" src="resources/empty_script.js?script-head-module"></script>
-<script async type=module src="resources/empty_script.js?script-head-async-module"></script>
+<script async type=module
+        src="resources/empty_script.js?script-head-async-module">
+</script>
 <script async src="resources/empty_script.js?script-head-async"></script>
 <script defer src="resources/empty_script.js?script-head-defer"></script>
+<script blocking=render
+        src="resources/empty_script.js?script-head-blocking-render">
+</script>
+<script async blocking=render
+        src="resources/empty_script.js?script-head-async-blocking-render">
+</script>
+<script type=module blocking=render
+        src="resources/empty_script.js?script-head-module-blocking-render">
+</script>
+<script async type=module blocking=render
+        src="resources/empty_script.js?script-head-async-module-blocking-render">
+</script>
+<script defer blocking=render
+        src="resources/empty_script.js?script-head-defer-blocking-render">
+</script>
 
-<script blocking=render src="resources/empty_script.js?script-head-blocking-render"></script>
-<script async blocking=render src="resources/empty_script.js?script-head-async-blocking-render"></script>
-<script type=module blocking=render src="resources/empty_script.js?script-head-module-blocking-render"></script>
-<script async type=module blocking=render src="resources/empty_script.js?script-head-async-module-blocking-render"></script>
-<script defer blocking=render src="resources/empty_script.js?script-head-defer-blocking-render"></script>
-
-<script id="script-head-remove-attr" blocking=render src="resources/empty_script.js?script-head-blocking-render-remove-attr"></script>
+<script id="script-head-remove-attr" blocking=render
+        src="resources/empty_script.js?script-head-blocking-render-remove-attr">
+</script>
 
 <script>
-    document.write('<script defer src="resources/empty_script.js?script-head-defer-dynamic-docwrite"><\/script>');
+    document.write(`
+        <script defer
+            src="resources/empty_script.js?script-head-defer-dynamic-docwrite">
+        <\/script>`);
 </script>
+</head>
 
 <body>
 
 <script src="resources/empty_script.js?script-body"></script>
 <script type="module" src="resources/empty_script.js?script-body-module"></script>
-<script async type=module src="resources/empty_script.js?script-body-async-module"></script>
+<script async type=module
+        src="resources/empty_script.js?script-body-async-module">
+</script>
 <script async src="resources/empty_script.js?script-body-async"></script>
 <script defer src="resources/empty_script.js?script-body-defer"></script>
 
@@ -37,13 +57,16 @@
     script.src = "resources/empty_script.js?script-head-dynamic-dom";
     document.head.appendChild(script);
 
-    // Dynamic non-async script
+    // Dynamic explicitly async script
     const async_script = document.createElement("script");
     async_script.src = "resources/empty_script.js?script-head-async-dynamic-dom";
     async_script.async = true;
     document.head.appendChild(async_script);
 
-    //Dynamic explicitly async script
+    // Dynamic non-async script
+    // https://html.spec.whatwg.org/multipage/scripting.html#script-processing-model
+    // mentions that a script element has to be parser-inserted to be
+    // implicitly potentially render-blocking
     const non_async_script = document.createElement("script");
     non_async_script.src = "resources/empty_script.js?script-head-non-async-dynamic-dom";
     non_async_script.async = false;
@@ -97,8 +120,8 @@
     document.head.appendChild(importer_async_script);
 
     // Removing blocking render attribute after request is made
-    const script_element = document.getElementById('script-head-remove-attr');
-    script_element.blocking = '';
+    const script_element = document.getElementById("script-head-remove-attr");
+    script_element.blocking = "";
 </script>
 
 
@@ -111,7 +134,6 @@ const wait_for_onload = () => {
 
 promise_test(
   async () => {
-
     const expectedRenderBlockingStatus = {
         'script-head': 'blocking',
         'script-head-module' : 'non-blocking',

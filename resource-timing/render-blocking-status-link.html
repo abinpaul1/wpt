@@ -1,46 +1,86 @@
 <!DOCTYPE html>
-
+<head>
 <meta charset="utf-8" />
 <title>This test validates the render blocking status of resources.</title>
 <link rel="help" href="https://www.w3.org/TR/resource-timing-2/#sec-performanceresourcetiming"/>
 <script src="/resources/testharness.js"></script>
 <script src="/resources/testharnessreport.js"></script>
 
+<!-- Start of test cases -->
 <script>
     // Dynamic style using document.write in head
-    document.write("<link rel=stylesheet href='resources/empty_style.css?stylesheet-head-dynamic-docWrite'>");
-    document.write("<link rel=stylesheet href='resources/empty_style.css?stylesheet-head-dynamic-docWrite-print' media=print>");
+    document.write(`
+        <link rel=stylesheet
+              href='resources/empty_style.css?stylesheet-head-dynamic-docWrite'>
+    `);
+    document.write(`
+        <link rel=stylesheet
+              href='resources/empty_style.css?stylesheet-head-dynamic-docWrite-print'
+              media=print>
+    `);
 </script>
 
-<link rel=stylesheet href='resources/empty_style.css?stylesheet-head'>
-<link rel=stylesheet href='resources/empty_style.css?stylesheet-head-media-print' media=print>
-<link rel="alternate stylesheet" href="resources/empty_style.css?stylesheet-head-alternate">
-<link rel=preload as=style href='resources/empty_style.css?link-style-head-preload'>
-<link rel=preload as=style href='resources/empty_style.css?link-style-preload-used'>
-<link rel=stylesheet href='resources/importer.css?stylesheet-importer-head'>
-<link rel=stylesheet id="link-head-remove-attr" blocking="render" href='resources/empty_style.css?stylesheet-head-blocking-render-remove-attr'>
-<link rel=modulepreload href='resources/empty_script.js?link-head-modulepreload'>
+<link rel=stylesheet href="resources/empty_style.css?stylesheet-head">
+<link rel=stylesheet href="resources/empty_style.css?stylesheet-head-media-print"
+      media=print>
+<link rel="alternate stylesheet"
+      href="resources/empty_style.css?stylesheet-head-alternate">
+<link rel=preload as=style href="resources/empty_style.css?link-style-head-preload">
+<link rel=preload as=style href="resources/empty_style.css?link-style-preload-used">
+<link rel=stylesheet href="resources/importer.css?stylesheet-importer-head">
+<link rel=stylesheet id="link-head-remove-attr" blocking="render"
+    href="resources/empty_style.css?stylesheet-head-blocking-render-remove-attr">
+<link rel=modulepreload href="resources/empty_script.js?link-head-modulepreload">
 
 <style>@import url(resources/empty_style.css?stylesheet-inline-imported);</style>
-<style media=print>@import url(resources/empty_style.css?stylesheet-inline-imported-print);</style>
+<style media=print>
+    @import url(resources/empty_style.css?stylesheet-inline-imported-print);
+</style>
+</head>
 
 <body>
 
-<link rel=stylesheet href='resources/empty_style.css?stylesheet-body'>
-<link rel=stylesheet href='resources/importer.css?stylesheet-importer-body'>
-<link rel=stylesheet href='resources/empty_style.css?stylesheet-body-media-print' media=print>
-<link rel=stylesheet blocking="render" href='resources/empty_style.css?stylesheet-body-blocking-render'>
+<link rel=stylesheet href="resources/empty_style.css?stylesheet-body">
+<link rel=stylesheet href="resources/importer.css?stylesheet-importer-body">
+<link rel=stylesheet href="resources/empty_style.css?stylesheet-body-media-print"
+      media=print>
+<link rel=stylesheet blocking="render"
+    href="resources/empty_style.css?stylesheet-body-blocking-render">
 
+<!-- https://html.spec.whatwg.org/multipage/urls-and-fetching.html#blocking-attributes
+     mentions that an element is potentially render-blocking if its blocking
+     tokens set contains "render", or if it is implicitly potentially
+     render-blocking. By default, an element is not implicitly potentially
+     render-blocking.
+     https://html.spec.whatwg.org/multipage/links.html#link-type-stylesheet
+     specifies that a link element of type stylesheet is implicitly potentially
+     render-blocking onlyif the element was created by its node document's parser. -->
 <script>
-
     // Dynamic style using document.write in body
-    document.write("<link rel=stylesheet href='resources/empty_style.css?stylesheet-body-dynamic-docWrite'>");
-    document.write("<link rel=stylesheet href='resources/empty_style.css?stylesheet-body-dynamic-docWrite-print' media=print>");
+    document.write(`
+        <link rel=stylesheet
+              href='resources/empty_style.css?stylesheet-body-dynamic-docWrite'>
+    `);
+    document.write(`
+        <link rel=stylesheet
+              href='resources/empty_style.css?stylesheet-body-dynamic-docWrite-print'
+              media=print>
+    `);
 
     // Dynamic style using innerHTML
-    document.head.innerHTML += "<link rel=stylesheet href='resources/empty_style.css?stylesheet-head-dynamic-innerHTML'>";
-    document.head.innerHTML += "<link rel=stylesheet href='resources/empty_style.css?stylesheet-head-dynamic-innerHTML-print' media=print>";
-    document.head.innerHTML += "<link rel=stylesheet blocking=render href='resources/empty_style.css?stylesheet-head-blocking-render-dynamic-innerHTML'>";
+    document.head.innerHTML += `
+        <link rel=stylesheet
+              href='resources/empty_style.css?stylesheet-head-dynamic-innerHTML'>
+    `;
+    document.head.innerHTML += `
+        <link rel=stylesheet
+              href='resources/empty_style.css?stylesheet-head-dynamic-innerHTML-print'
+              media=print>
+    `;
+    document.head.innerHTML += `
+        <link rel=stylesheet blocking=render
+              href='resources/empty_style.css?stylesheet-head-blocking-render-dynamic-innerHTML'>
+    `;
 
     // Dynamic style using DOM API
     var link = document.createElement("link");
@@ -82,8 +122,16 @@
 
     // Dynamic inline CSS
     // Add an inline CSS importer
-    document.write("<style>@import url('resources/empty_style.css?stylesheet-inline-imported-dynamic-docwrite')</style>");
-    document.write("<style media=print>@import url('resources/empty_style.css?stylesheet-inline-imported-dynamic-docwrite-print')</style>");
+    document.write(`
+        <style>
+            @import url('resources/empty_style.css?stylesheet-inline-imported-dynamic-docwrite')
+        </style>
+    `);
+    document.write(`
+        <style media=print>
+            @import url('resources/empty_style.css?stylesheet-inline-imported-dynamic-docwrite-print')
+        </style>
+    `);
 
     // Add a dynamic inline CSS importer using DOM API
     let style = document.createElement("style");
@@ -96,16 +144,20 @@
     style.blocking = "render";
     document.head.appendChild(style);
 
-    //Dynamic CSS importer
-    document.write("<link rel=stylesheet href='resources/importer_dynamic.css'>");
-    document.write("<link rel=stylesheet href='resources/importer_print.css' media=print>");
+    // Dynamic CSS importer
+    document.write(`
+        <link rel=stylesheet href='resources/importer_dynamic.css'>
+    `);
+    document.write(`
+        <link rel=stylesheet href='resources/importer_print.css' media=print>
+    `);
 
     // Removing blocking render attribute after request is made
-    const sheet = document.getElementById('link-head-remove-attr');
-    sheet.blocking = '';
+    const sheet = document.getElementById("link-head-remove-attr");
+    sheet.blocking = "";
 </script>
 
-<link rel=stylesheet href='resources/empty_style.css?link-style-preload-used'>
+<link rel=stylesheet href="resources/empty_style.css?link-style-preload-used">
 
 <script>
 
@@ -116,7 +168,6 @@ const wait_for_onload = () => {
 
 promise_test(
   async () => {
-
     const expectedRenderBlockingStatus = {
         'stylesheet-head-dynamic-docWrite': 'blocking',
         'stylesheet-head-dynamic-docWrite-print': 'non-blocking',
@@ -157,7 +208,9 @@ promise_test(
 
     const entry_list = performance.getEntriesByType("resource");
     for (entry of entry_list) {
-        if (entry.name.includes("empty_style.css") || entry.name.includes("empty_script.js")) {
+        if (entry.name.includes("empty_style.css") ||
+                entry.name.includes("importer.css") ||
+                entry.name.includes("empty_script.js")) {
             key = entry.name.split("?").pop();
             expectedStatus = expectedRenderBlockingStatus[key];
             assert_equals(entry.renderBlockingStatus, expectedStatus,
